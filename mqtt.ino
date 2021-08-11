@@ -9,12 +9,12 @@
 
 /************************* Adafruit.io Setup *********************************/
 
-#define AIO_SERVER        "192.168.1.101"
-#define AIO_SERVERPORT    1883                   // use 8883 for SSL
-#define AIO_USERNAME      ""
-#define AIO_KEY           ""
+#define AIO_SERVER        "io.adafruit.com"       //"io.adafruit.com" is default MQTT server
+#define AIO_SERVERPORT    1883                    // use 8883 for SSL
+#define AIO_USERNAME      ""                      //AdafruitIO username
+#define AIO_KEY           ""                      //AdafruitIO generated API key
 
-#define mqtt_update_rate   5    //Update rate in seconds
+#define mqtt_update_rate   15                     //Update rate in seconds - Keep messaging rate slow enough to not overburded MQTT service
 
 /************ Global State (you don't need to change this!) ******************/
 
@@ -27,20 +27,19 @@ WiFiClient client;
 Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
 /****************************** Feeds ***************************************/
+//Publishing Feeds to AdafruitIO
+Adafruit_MQTT_Publish     mqtt_spa_state_water_temperature    = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/spa-state-water_temperature");
+Adafruit_MQTT_Publish     mqtt_spa_state_desired_temperature  = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/spa-state-desired_temperature");
+Adafruit_MQTT_Publish     mqtt_spa_state_lights               = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/spa-state-lights");
+Adafruit_MQTT_Publish     mqtt_spa_state_jets                 = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/spa-state-jets");
+Adafruit_MQTT_Publish     mqtt_spa_state_blower               = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/spa-state-blower");
+Adafruit_MQTT_Publish     mqtt_spa_state_status               = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/spa-state-status");
 
-// Setup a feed called 'photocell' for publishing.
-// Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-Adafruit_MQTT_Publish     mqtt_spa_state_water_temperature    = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/spa/state/water_temperature");
-Adafruit_MQTT_Publish     mqtt_spa_state_lights               = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/spa/state/lights");
-Adafruit_MQTT_Publish     mqtt_spa_state_jets                 = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/spa/state/jets");
-Adafruit_MQTT_Publish     mqtt_spa_state_blower               = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/spa/state/blower");
-Adafruit_MQTT_Publish     mqtt_spa_state_status               = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/spa/state/status");
-
-// Setup a feed called 'onoff' for subscribing to changes.
-Adafruit_MQTT_Subscribe   mqtt_spa_command_water_temperature  = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/spa/command/water_temperature");
-Adafruit_MQTT_Subscribe   mqtt_spa_command_lights             = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/spa/command/lights");
-Adafruit_MQTT_Subscribe   mqtt_spa_command_jets               = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/spa/command/jets");
-Adafruit_MQTT_Subscribe   mqtt_spa_command_blower             = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/spa/command/blower");
+// Setup a feed for subscribing to changes.
+Adafruit_MQTT_Subscribe   mqtt_spa_command_water_temperature  = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/spa-command-water_temperature");
+Adafruit_MQTT_Subscribe   mqtt_spa_command_lights             = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/spa-command-lights");
+Adafruit_MQTT_Subscribe   mqtt_spa_command_jets               = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/spa-command-jets");
+Adafruit_MQTT_Subscribe   mqtt_spa_command_blower             = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/spa-command-blower");
 
 /*************************** Sketch Code ************************************/
 
@@ -155,8 +154,9 @@ void mqtt_loop(void)
     } else {
       //Serial.println(F("OK!"));
     }*/
-
+    
     mqtt_spa_state_water_temperature.publish(bbstatus.temperature);
+    mqtt_spa_state_desired_temperature.publish(bbstatus.temperature_desired); 
     mqtt_spa_state_lights.publish(bbstatus.lights);
     mqtt_spa_state_jets.publish(bbstatus.jets);
     mqtt_spa_state_blower.publish(bbstatus.blower);
