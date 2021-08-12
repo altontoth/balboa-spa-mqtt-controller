@@ -1,7 +1,7 @@
 # balboa-spa-mqtt-controller
  Balboa Spa MQTT Controller on NodeMCU v3
  
-This project is derived from and inspired by the project located at https://github.com/NickB1/balboa-spa-mqtt-controller/
+This project is forked from the project located at https://github.com/NickB1/balboa-spa-mqtt-controller/
 
 ---
 
